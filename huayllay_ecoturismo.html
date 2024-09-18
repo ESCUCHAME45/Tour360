@@ -1,0 +1,822 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOUR 360°</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style> 
+        :root {
+            --primary-color: #FF6B6B;
+            --secondary-color: #4ECDC4;
+            --accent-color: #FFD93D;
+            --text-color: #333;
+            --background-color: #F7FFF7;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+        }
+
+        .navbar-brand {
+            color: var(--accent-color) !important;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .navbar-light .navbar-nav .nav-link {
+            color: white;
+            font-weight: 300;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        p {
+            font-weight: 300;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            font-weight: 400;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #wheelCanvas {
+            margin-bottom: 20px;
+        }
+
+        #spinButton {
+            background-color: var(--accent-color);
+            border: none;
+        }
+
+        #spinButton:hover {
+            background-color: var(--primary-color);
+        }
+
+        .help-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .chat-box {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 300px;
+            background-color: white;
+            border: 1px solid var(--primary-color);
+            border-radius: 10px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-box-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .chat-box-body {
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+        }
+
+        .chat-box-footer {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid var(--primary-color);
+        }
+
+        .chat-box-footer input {
+            flex-grow: 1;
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .chat-box-footer button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">TOUR 360°</a>
+            <button class="profile-button" onclick="openProfile()"><i class="fas fa-user-circle"></i></button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#destinos">Destinos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#cronograma">Cronograma</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#ruleta">Ruleta de Premios</a>
+                    </li>
+                </ul>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Buscar">
+                    <button class="btn btn-outline-light me-2" type="submit">Buscar</button>
+                </form>
+                <button class="btn btn-outline-light me-2" onclick="showModal('loginModal')">Iniciar Sesión</button>
+                <button class="btn btn-outline-light me-2" onclick="showModal('registerModal')">Registrarse</button>
+                <button class="btn btn-outline-light" onclick="simulateScanner()"><i class="fas fa-camera"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">TOUR 360°</h1>
+        <h2 class="text-center mb-4">Explora la Naturaleza en su Máximo Esplendor</h2>
+        
+        <div id="destinos" class="row">
+            <div class="col-md-4">
+                <h3>Bosque de Piedras de Huayllay</h3>
+                <img src="https://7555e4202f.cbaul-cdnwnd.com/0b51eabb6413908b95da9d72b491544c/200000160-b8dd2b8dd5/huayllay_bosque_de_piedras_pasco.webp?ph=7555e4202f" alt="Bosque de Piedras de Huayllay" class="img-fluid mb-3">
+                <p>Explora las formaciones rocosas únicas del Bosque de Piedras de Huayllay, un paisaje surrealista que te dejará sin aliento.</p>
+            </div>
+            <div class="col-md-4">
+                <h3>Formación Rocosa El Elefante</h3>
+                <img src="https://7555e4202f.cbaul-cdnwnd.com/0b51eabb6413908b95da9d72b491544c/200000159-2d9dd2d9e0/elefante-4.webp?ph=7555e4202f" alt="Formación rocosa El Elefante" class="img-fluid mb-3">
+                <p>Descubre las increíbles formaciones rocosas como El Elefante, que desafían la imaginación y te transportan a un mundo de fantasía.</p>
+            </div>
+            <div class="col-md-4">
+                <h3>Vista Panorámica de Huayllay</h3>
+                <img src="https://7555e4202f.cbaul-cdnwnd.com/0b51eabb6413908b95da9d72b491544c/200000158-f37e7f37e9/700/Bosque%20de%20piedras%20de%20Huayllay%2004-3.webp?ph=7555e4202f" alt="Vista Panorámica de Huayllay" class="img-fluid mb-3">
+                <p>Disfruta de las vistas panorámicas impresionantes que ofrece el Bosque de Piedras de Huayllay, un paisaje único en el mundo.</p>
+            </div>
+        </div>
+
+        <div id="cronograma" class="mt-5">
+            <h2 class="text-center mb-4">Cronograma de Actividades</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Día</th>
+                        <th>Actividad</th>
+                        <th>Hora</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Lunes</td>
+                        <td>Camping y observación astronómica</td>
+                        <td>19:00 - 23:00</td>
+                    </tr>
+                    <tr>
+                        <td>Martes</td>
+                        <td>Senderismo</td>
+                        <td>08:00 - 12:00</td>
+                    </tr>
+                    <tr>
+                        <td>Miércoles</td>
+                        <td>Observación de Flora y Fauna</td>
+                        <td>09:00 - 11:00</td>
+                    </tr>
+                    <tr>
+                        <td>Jueves</td>
+                        <td>Escalada en roca</td>
+                        <td>14:00 - 18:00</td>
+                    </tr>
+                    <tr>
+                        <td>Viernes</td>
+                        <td>Visitas culturales</td>
+                        <td>10:00 - 15:00</td>
+                    </tr>
+                    <tr>
+                        <td>Sábado</td>
+                        <td>Paseo en cuatrimotos</td>
+                        <td>09:00 - 13:00</td>
+                    </tr>
+                    <tr>
+                        <td>Domingo</td>
+                        <td>Visita a la comunidad campesina</td>
+                        <td>08:00 - 12:00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="ruleta" class="mt-5">
+            <h2 class="text-center mb-4">Ruleta de Premios</h2>
+            <div class="wheel-container">
+                <canvas id="wheelCanvas" width="300" height="300"></canvas>
+                <button id="spinButton" class="btn btn-primary">¡Girar!</button>
+                <p id="prizeResult" class="mt-3"></p>
+            </div>
+        </div>
+        <div class="mt-5 text-center">
+            <a href="https://www.instagram.com" target="_blank" class="btn btn-primary">Contáctanos en Instagram</a>
+        </div>
+    </div>
+
+    
+    <!-- Modales -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Iniciar Sesión</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">Registrarse</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="registerName" class="form-label">Nombre completo</label>
+                            <input type="text" class="form-control" id="registerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerEmail" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="registerEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="registerPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Registrarse</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="help-button" onclick="toggleChatBox()">
+        <i class="fas fa-question"></i>
+    </button>
+
+    <div id="chatBox" class="chat-box">
+        <div class="chat-box-header">
+            <h5>Kiki - Asistente Virtual</h5>
+        </div>
+        <div id="chatBody" class="chat-box-body"></div>
+        <div class="chat-box-footer">
+            <input type="text" id="userInput" placeholder="Escribe tu pregunta...">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+    <script>
+        function openProfile() {
+            const profileModal = document.getElementById('profileModal');
+            if (profileModal) {
+                profileModal.style.display = 'block';
+            } else {
+                console.error('El elemento profileModal no se encontró');
+            }
+        }
+        
+        function showRedeemForm(rewardId) {
+            const redeemForm = document.getElementById('redeemForm');
+            if (redeemForm) {
+                redeemForm.style.display = 'block';
+                console.log(`Mostrando formulario para la recompensa ${rewardId}`);
+            } else {
+                console.error('El elemento redeemForm no se encontró');
+            }
+        }
+        
+        function sendRedeemRequest() {
+            const emailInput = document.getElementById('emailInput');
+            if (emailInput && emailInput.value) {
+                const email = emailInput.value.trim();
+                console.log(`Enviando solicitud de canje a: ${email}`);
+                alert(`Solicitud de canje enviada a: ${email}`);
+                emailInput.value = '';
+                document.getElementById('redeemForm').style.display = 'none';
+            } else {
+                alert('Por favor, ingresa un correo electrónico válido');
+            }
+        }
+        
+        document.addEventListener('click', function(event) {
+            const profileModal = document.getElementById('profileModal');
+            if (profileModal && event.target === profileModal) {
+                profileModal.style.display = 'none';
+            }
+        });
+        
+        function addCloseButton() {
+            const profileModal = document.getElementById('profileModal');
+            if (profileModal) {
+                const closeButton = document.createElement('button');
+                closeButton.innerHTML = '&times;';
+                closeButton.style.cssText = `
+                    position: absolute;
+                    right: 10px;
+                    top: 10px;
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                `;
+                closeButton.onclick = function() {
+                    profileModal.style.display = 'none';
+                };
+                profileModal.querySelector('.profile-content').appendChild(closeButton);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', addCloseButton);
+        </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Ruleta de premios
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const spinButton = document.getElementById('spinButton');
+        const prizeResult = document.getElementById('prizeResult');
+
+        const prizes = [
+            "100 puntos",
+            "200 puntos",
+            "300 puntos",
+            "400 puntos",
+            "500 puntos",
+            "¡1000 puntos!"
+        ];
+
+        let startAngle = 0;
+        let arc = Math.PI / (prizes.length / 2);
+        let spinTimeout = null;
+        let spinTime = 0;
+        let spinTimeTotal = 0;
+
+        function drawWheel() {
+            ctx.clearRect(0, 0, 300, 300);
+            ctx.strokeStyle = "#000";
+            ctx.lineWidth = 2;
+            
+            ctx.font = 'bold 12px Poppins';
+            
+            for(let i = 0; i < prizes.length; i++) {
+                const angle = startAngle + i * arc;
+                ctx.fillStyle = i % 2 == 0 ? "#FF6B6B" : "#4ECDC4";
+                
+                ctx.beginPath();
+                ctx.arc(150, 150, 145, angle, angle + arc, false);
+                ctx.lineTo(150, 150);
+                ctx.fill();
+                
+                ctx.save();
+                ctx.fillStyle = "#fff";
+                ctx.translate(150 + Math.cos(angle + arc / 2) * 120, 150 + Math.sin(angle + arc / 2) * 120);
+                ctx.rotate(angle + arc / 2 + Math.PI / 2);
+                const text = prizes[i];
+                ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+                ctx.restore();
+            }
+        }
+
+        function spin() {
+            spinTime = 0;
+            spinTimeTotal = Math.random() * 3000 + 4000;
+            rotateWheel();
+        }
+
+        function rotateWheel() {
+            spinTime += 30;
+            if(spinTime >= spinTimeTotal) {
+                stopRotateWheel();
+                return;
+            }
+            const spinAngle = spinTimeTotal - spinTime;
+            startAngle += (spinAngle * Math.PI / 180);
+            drawWheel();
+            spinTimeout = setTimeout(rotateWheel, 30);
+        }
+
+        function stopRotateWheel() {
+            clearTimeout(spinTimeout);
+            const degrees = startAngle * 180 / Math.PI + 90;
+            const arcd = arc * 180 / Math.PI;
+            const index = Math.floor((360 - degrees % 360) / arcd);
+            prizeResult.textContent = `¡Felicidades! Has ganado ${prizes[index]}`;
+        }
+
+        spinButton.addEventListener('click', spin);
+
+        drawWheel();
+
+        function showModal(modalId) {
+            const modal = new bootstrap.Modal(document.getElementById(modalId));
+            modal.show();
+        }
+            function simulateScanner() {
+    const scannerOverlay = document.getElementById('scanner-overlay');
+    scannerOverlay.style.display = 'flex';
+    
+    setTimeout(() => {
+        scannerOverlay.style.display = 'none';
+        alert("Escaneo completado. En una aplicación real, esto activaría la cámara del dispositivo y procesaría la imagen.");
+    }, 3000); // La animación dura 3 segundos
+}
+
+        function toggleChatBox() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.style.display = chatBox.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const chatBody = document.getElementById('chatBody');
+            const userMessage = userInput.value.trim();
+
+            if (userMessage) {
+                chatBody.innerHTML += `<p><strong>Usuario:</strong> ${userMessage}</p>`;
+                userInput.value = '';
+
+                // Simulated response from Kiki
+                setTimeout(() => {
+                    const kikiResponse = "Para hacer un reclamo, por favor envía un correo a soporte@tour360.com con los detalles de tu problema. Nuestro equipo se pondrá en contacto contigo lo antes posible.";
+                    chatBody.innerHTML += `<p><strong>Kiki:</strong> ${kikiResponse}</p>`;
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santuario Nacional de Huayllay</title>
+    <style>
+        #scanner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#scanner-animation {
+    width: 300px;
+    height: 300px;
+    border: 5px solid var(--accent-color);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+#scanner-animation::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--accent-color), transparent);
+    animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+    0% {
+        top: -100%;
+    }
+    100% {
+        top: 100%;
+    }
+}
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .title {
+            background-color: rgba(0,0,0,0.7);
+            color: #FFD700;
+            text-align: center;
+            padding: 20px;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        .slide-container {
+            position: relative;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .slide.active {
+            opacity: 1;
+        }
+        .slide img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            animation: zoomEffect 20s infinite alternate;
+        }
+        @keyframes zoomEffect {
+            0% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(1.2);
+            }
+        }
+        .slide-content {
+            max-width: 80%;
+            padding: 20px;
+            background-color: rgba(0,0,0,0.7);
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255,255,255,0.3);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        .nav-button:hover {
+            background-color: rgba(255,255,255,0.5);
+        }
+        #prev-btn {
+            left: 10px;
+        }
+        #next-btn {
+            right: 10px;
+        }
+        .profile-button {
+    background-color: transparent;
+    border: none;
+    color: var(--accent-color);
+    font-size: 24px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.profile-button:hover {
+    color: white;
+}
+
+.profile-modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.profile-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+}
+
+.profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+
+.rewards {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.reward-item {
+    text-align: center;
+}
+
+.reward-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.redeem-form {
+    display: none;
+    margin-top: 20px;
+}
+    </style>
+</head>
+<body>
+    <div id="scanner-overlay" style="display: none;">
+        <div id="scanner-animation"></div>
+    </div>
+    <div id="profileModal" class="profile-modal">
+        <div class="profile-content">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIMs-MDUVjyT547Br2fDOXDNu7qEhiNfnaGw&s" alt="Perfil" class="profile-image">
+            <h2>Juan Pablo Ramirez</h2>
+            <p>Puntos acumulados: 600</p>
+            <h3>Recompensas disponibles:</h3>
+            <div class="rewards">
+                <div class="reward-item">
+                    <img src="https://www.incasperu.com/wp-content/uploads/2021/03/circuitos-viaje-vacaciones-a-peru-1280x720.jpg" alt="Recompensa 1" class="reward-image" onclick="showRedeemForm(1)">
+                    <p>50% de descuento en tu viaje</p>
+                </div>
+                <div class="reward-item">
+                    <img src="https://blog.localadventures.mx/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-26-at-16.14.33.jpeg" alt="Recompensa 2" class="reward-image" onclick="showRedeemForm(2)">
+                    <p>Excursión gratis</p>
+                </div>
+                <div class="reward-item">
+                    <img src="https://blog.localadventures.mx/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-26-at-16.14.33.jpeg" alt="Recompensa 3" class="reward-image" onclick="showRedeemForm(3)">
+                    <p>Noche de hotel gratis</p>
+                </div>
+            </div>
+            <div id="redeemForm" class="redeem-form">
+                <p>Si quieres canjear tus puntos es necesario tu correo:</p>
+                <input type="email" id="emailInput" placeholder="Tu correo electrónico" class="form-control mb-2">
+                <button onclick="sendRedeemRequest()" class="btn btn-primary">Enviar boleta electrónica</button>
+            </div>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="title">¡Comienza tu experiencia en TOUR 360°!</div>
+        <div class="slide-container">
+            <div class="slide active">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/Santuario_Nacional_de_Huayllay_Pasco_Per%C3%BA.PNG" alt="Santuario Nacional de Huayllay">
+                <div class="slide-content">
+                    <h1>Santuario Nacional de Huayllay</h1>
+                    <p>Ubicado en Pasco, Perú, el Santuario Nacional de Huayllay es conocido por sus impresionantes formaciones rocosas que asemejan figuras humanas y animales.</p>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="https://portal.andina.pe/EDPfotografia/Thumbnail/2014/09/04/000260163W.jpg" alt="Formaciones rocosas en Huayllay">
+                <div class="slide-content">
+                    <h1>El Bosque de Piedras</h1>
+                    <p>También llamado "Bosque de Piedras", este santuario alberga una variedad de flora y fauna única, además de ser un importante sitio arqueológico y turístico.</p>
+                </div>
+            </div>
+            <button id="prev-btn" class="nav-button">&#10094;</button>
+            <button id="next-btn" class="nav-button">&#10095;</button>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        let currentSlide = 0;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+
+        prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+    </script> 
+    <div id="profileModal" class="profile-modal">
+        <div class="profile-content">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIMs-MDUVjyT547Br2fDOXDNu7qEhiNfnaGw&s" alt="Perfil" class="profile-image">
+            <h2>Juan Pablo Ramirez</h2>
+            <p>Puntos acumulados: 600</p>
+            <h3>Recompensas disponibles:</h3>
+            <div class="rewards">
+                <div class="reward-item">
+                    <img src="https://www.incasperu.com/wp-content/uploads/2021/03/circuitos-viaje-vacaciones-a-peru-1280x720.jpg" alt="Recompensa 1" class="reward-image" onclick="showRedeemForm(1)">
+                    <p>50% de descuento en tu viaje</p>
+                </div>
+                <div class="reward-item">
+                    <img src="https://blog.localadventures.mx/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-26-at-16.14.33.jpeg" alt="Recompensa 2" class="reward-image" onclick="showRedeemForm(2)">
+                    <p>Excursión gratis</p>
+                </div>
+                <div class="reward-item">
+                    <img src="https://blog.localadventures.mx/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-26-at-16.14.33.jpeg" alt="Recompensa 3" class="reward-image" onclick="showRedeemForm(3)">
+                    <p>Noche de hotel gratis</p>
+                </div>
+            </div>
+            <div id="redeemForm" class="redeem-form">
+                <p>Si quieres canjear tus puntos es necesario tu correo:</p>
+                <input type="email" id="emailInput" placeholder="Tu correo electrónico" class="form-control mb-2">
+                <button onclick="sendRedeemRequest()" class="btn btn-primary">Enviar boleta electrónica</button>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>
+
